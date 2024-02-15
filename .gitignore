@@ -16,3 +16,8 @@
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Node.js
+node_modules
+package-lock.json
+npm-debug.log
