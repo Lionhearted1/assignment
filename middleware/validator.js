@@ -1,36 +1,25 @@
-const validator = require("validator");
+const { body, validationResult } = require('express-validator');
 
-const isValidEmail = (email) => {
-    return validator.isEmail(email);
-};
+const validateAuthorRegistration = [
+    body('author_id').notEmpty(),
+    body('author_name').isLength({ min: 3 }).trim().isAlpha('en-US', { ignore: ' ' }),
+    body('author_email').isEmail(),
+    body('author_password').isLength({ min: 6 }),
 
-const isValidName = (name) => {
-    return validator.isLength(name, { min: 3, max: undefined }) && validator.isAlpha(name, 'en-US', { ignore: ' ' });
-};
+    (req, res, next) => {
+        const errors = validationResult(req);
 
-const isValidPassword = (password) => {
-    return validator.isLength(password, { min: 6 });
-};
+        if (!errors.isEmpty()) {
+            return res.status(401).json({
+                success: false,
+                message: 'Validation failed',
+                errors: errors.array(),
+            });
+        }
 
-const validateAuthorRegistration = (req, res, next) => {
-    const { author_id, author_name, author_email, author_password } = req.body;
-
-    if (!author_id || !author_name || !author_email || !author_password) {
-        return res.status(401).json({
-            success: false,
-            message: "Insufficient data",
-        });
-    }
-
-    if (!isValidEmail(author_email) || !isValidName(author_name) || !isValidPassword(author_password)) {
-        return res.status(401).json({
-            success: false,
-            message: "Invalid email, name, or password",
-        });
-    }
-
-    next();
-};
+        next();
+    },
+];
 
 module.exports = {
     validateAuthorRegistration,
